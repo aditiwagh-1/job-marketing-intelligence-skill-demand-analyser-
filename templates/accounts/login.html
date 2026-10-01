@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Authentication &middot; Sign In{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-8">
+
+  <div class="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 shadow-2xl">
+    
+    <div class="text-center space-y-2">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/25">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h1 class="font-heading text-2xl font-extrabold text-white">Sign in to JobMarketIQ</h1>
+      <p class="text-xs text-slate-400">Access your personalized skill gap roadmaps and recommendations.</p>
+    </div>
+
+    <!-- Demo Account Quick Login Box -->
+    <div class="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs space-y-2">
+      <div class="flex items-center justify-between font-semibold text-indigo-300">
+        <span><i class="fa-solid fa-key mr-1"></i> Quick Demo Access:</span>
+        <button type="button" onclick="fillDemoCredentials()" class="text-[11px] font-bold text-cyan-400 hover:underline">
+          Auto-Fill
+        </button>
+      </div>
+      <p class="text-[11px] text-slate-400 font-mono">
+        Username: <strong class="text-slate-200">demo_user</strong> &middot; Password: <strong class="text-slate-200">demopassword123</strong>
+      </p>
+    </div>
+
+    <form method="POST" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Username or Email</label>
+        {{ form.username }}
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition-all">
+        Sign In
+      </button>
+    </form>
+
+    <div class="text-center pt-4 border-t border-slate-800 text-xs text-slate-400">
+      Don't have an account yet?
+      <a href="{% url 'accounts:register' %}" class="font-bold text-indigo-400 hover:text-indigo-300 ml-1">Create Account &rarr;</a>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function fillDemoCredentials() {
+    const userInput = document.querySelector('input[name="username"]');
+    const passInput = document.querySelector('input[name="password"]');
+    if (userInput) userInput.value = 'demo_user';
+    if (passInput) passInput.value = 'demopassword123';
+  }
+</script>
+{% endblock %}

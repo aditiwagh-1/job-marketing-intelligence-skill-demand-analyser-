@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}Skill Gap Analyzer &amp; Learning Roadmap - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Skill Gap Intelligence{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header Banner -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+      <i class="fa-solid fa-bullseye"></i> Signature Feature
+    </div>
+    <h1 class="font-heading text-2xl sm:text-4xl font-extrabold text-white">Skill Gap Analyzer</h1>
+    <p class="text-slate-300 text-xs sm:text-sm max-w-3xl leading-relaxed">
+      Benchmark your current tech skills against live market requirements. Identify missing tools and receive an automated, phased learning roadmap.
+    </p>
+  </div>
+
+  <!-- Interactive Skill Selector & Role Form -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/20 to-slate-900 space-y-6">
+    
+    <form action="{% url 'recommendations:skill_gap' %}" method="POST" id="skill-gap-form" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Target Job Role Dropdown -->
+      <div>
+        <label for="target_role" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+          1. Select Your Target Career Role:
+        </label>
+        <div class="max-w-md">
+          <select name="target_role" id="target_role" class="w-full bg-slate-900 border border-indigo-500/40 rounded-2xl px-4 py-3 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 shadow-xl">
+            {% for role in all_roles %}
+            <option value="{{ role }}" {% if selected_role == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Current Skills Picker (Categorized Chips) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+            2. Select Your Current Skills &amp; Competencies:
+          </label>
+          <span class="text-xs text-indigo-400 font-semibold">
+            <span id="selected-skills-count">{{ selected_skills|length }}</span> skills selected
+          </span>
+        </div>
+
+        <p class="text-[11px] text-slate-400">Click chips to toggle your proficiencies. The engine will instantly recalculate your gap score.</p>
+
+        <!-- Chips Container -->
+        <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 max-h-60 overflow-y-auto space-y-3">
+          <div class="flex flex-wrap gap-2">
+            {% for skill in all_skills %}
+            <label class="skill-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium cursor-pointer transition-all {% if skill.name in selected_skills %}selected bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/30{% else %}bg-slate-900/80 border-slate-700 text-slate-300 hover:border-slate-500{% endif %}">
+              <input type="checkbox" name="skills" value="{{ skill.name }}" class="hidden" {% if skill.name in selected_skills %}checked{% endif %}>
+              <i class="{{ skill.icon }} text-[11px]"></i>
+              <span>{{ skill.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex items-center gap-4">
+        <button type="submit" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:opacity-95 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 hover:scale-[1.02] transition-all flex items-center gap-2">
+          <i class="fa-solid fa-calculator"></i> Run Gap Analysis
+        </button>
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="text-xs text-slate-400 hover:text-indigo-400">
+          Sync permanently to my Profile &rarr;
+        </a>
+        {% endif %}
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- Gap Analysis Results Section -->
+  {% if gap %}
+  <div class="space-y-8">
+    
+    <!-- KPI Score Summary -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      
+      <!-- Match Percentage Card -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col justify-between card-hover">
+        <span class="text-[11px] font-bold uppercase text-slate-400">Skill Match Score</span>
+        <div class="font-heading text-4xl sm:text-5xl font-black {% if gap.match_percentage >= 75 %}text-emerald-400{% elif gap.match_percentage >= 50 %}text-amber-400{% else %}text-rose-400{% endif %} mt-2">
+          {{ gap.match_percentage }}%
+        </div>
+        <div class="mt-2">
+          <span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-md {% if gap.match_percentage >= 75 %}bg-emerald-500/10 text-emerald-300 border border-emerald-500/30{% elif gap.match_percentage >= 50 %}bg-amber-500/10 text-amber-300 border border-amber-500/30{% else %}bg-rose-500/10 text-rose-300 border border-rose-500/30{% endif %}">
+            {{ gap.readiness_label }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Required Skills -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 card-hover">
+        <span class="text-[11px] font-bold uppercase text-slate-400">Target Role Skills</span>
+        <div class="font-heading text-4xl sm:text-5xl font-black text-white mt-2">
+          {{ gap.required_count }}
+        </div>
+        <p class="text-xs text-slate-400 mt-2">Market core tools</p>
+      </div>
+
+      <!-- Matched Skills Count -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 card-hover">
+        <span class="text-[11px] font-bold uppercase text-slate-400">Your Acquired Skills</span>
+        <div class="font-heading text-4xl sm:text-5xl font-black text-emerald-400 mt-2">
+          {{ gap.matched_count }}
+        </div>
+        <p class="text-xs text-emerald-400 mt-2 flex items-center gap-1 font-medium">
+          <i class="fa-solid fa-check"></i> Already in Profile
+        </p>
+      </div>
+
+      <!-- Missing Skills Count -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 card-hover">
+        <span class="text-[11px] font-bold uppercase text-slate-400">Skill Gap Delta</span>
+        <div class="font-heading text-4xl sm:text-5xl font-black text-rose-400 mt-2">
+          {{ gap.missing_count }}
+        </div>
+        <p class="text-xs text-slate-400 mt-2 font-medium">~{{ gap.estimated_weeks }} Weeks to Bridge</p>
+      </div>
+
+    </div>
+
+    <!-- Diagnostic Banner -->
+    <div class="p-5 rounded-2xl bg-slate-900/90 border {% if gap.match_percentage >= 75 %}border-emerald-500/30{% elif gap.match_percentage >= 50 %}border-amber-500/30{% else %}border-rose-500/30{% endif %} flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl {% if gap.match_percentage >= 75 %}bg-emerald-500/20 text-emerald-400{% elif gap.match_percentage >= 50 %}bg-amber-500/20 text-amber-400{% else %}bg-rose-500/20 text-rose-400{% endif %} flex items-center justify-center text-lg shrink-0">
+        <i class="fa-solid fa-circle-info"></i>
+      </div>
+      <div>
+        <h2 class="font-heading text-sm font-bold text-white">Diagnostic Summary for {{ gap.target_role }}</h2>
+        <p class="text-xs text-slate-300 mt-0.5">{{ gap.readiness_desc }}</p>
+      </div>
+    </div>
+
+    <!-- Matched Skills vs Missing Skills Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Matched Skills (Green) -->
+      <div class="glass-panel p-6 rounded-3xl border border-emerald-500/30 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-heading text-base font-bold text-emerald-400 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check"></i> Acquired Skills ({{ gap.matched_count }})
+          </h2>
+          <span class="text-xs text-slate-400">Match verified</span>
+        </div>
+
+        <div class="space-y-2.5">
+          {% for skill in gap.matched_skills %}
+          <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <i class="{{ skill.icon }} text-emerald-400 text-sm w-4 text-center"></i>
+              <span class="text-xs font-bold text-white">{{ skill.name }}</span>
+              <span class="text-[10px] text-slate-400">({{ skill.category }})</span>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+              {{ skill.market_demand_pct }}% Demand
+            </span>
+          </div>
+          {% empty %}
+          <p class="text-xs text-slate-500 py-3">No matching skills detected yet for this role.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Missing Skills (Red/Amber) -->
+      <div class="glass-panel p-6 rounded-3xl border border-rose-500/30 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-heading text-base font-bold text-rose-400 flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation"></i> Missing Skills to Learn ({{ gap.missing_count }})
+          </h2>
+          <span class="text-xs text-slate-400">High priority</span>
+        </div>
+
+        <div class="space-y-2.5">
+          {% for skill in gap.missing_skills %}
+          <div class="p-3 rounded-xl bg-rose-950/20 border border-rose-500/20 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <i class="{{ skill.icon }} text-rose-400 text-sm w-4 text-center"></i>
+              <span class="text-xs font-bold text-white">{{ skill.name }}</span>
+              <span class="text-[10px] text-slate-400">({{ skill.category }})</span>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">
+              {{ skill.market_demand_pct }}% Demand
+            </span>
+          </div>
+          {% empty %}
+          <div class="p-4 rounded-xl bg-emerald-950/30 text-emerald-300 text-xs font-semibold text-center">
+            🎉 Congratulations! You have mastered all top market skills for this role!
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tailored Phased Learning Roadmap -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800">
+        <div>
+          <h2 class="font-heading text-xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-route text-indigo-400"></i> Recommended Learning Roadmap for {{ gap.target_role }}
+          </h2>
+          <p class="text-xs text-slate-400">A structured step-by-step curriculum to systematically bridge your missing skills.</p>
+        </div>
+        <span class="text-xs font-bold px-3 py-1 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 shrink-0">
+          Estimated: ~{{ gap.estimated_weeks }} Weeks
+        </span>
+      </div>
+
+      <!-- Roadmap Phases Timeline -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for step in gap.roadmap %}
+        <div class="p-5 rounded-2xl border {% if step.is_completed %}bg-emerald-950/20 border-emerald-500/40{% else %}bg-slate-900/70 border-slate-800{% endif %} space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider {% if step.is_completed %}text-emerald-400{% else %}text-indigo-400{% endif %}">
+                {{ step.phase }}
+              </span>
+              {% if step.is_completed %}
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">DONE ✓</span>
+              {% else %}
+              <span class="text-[10px] text-slate-500 font-mono">{{ step.duration }}</span>
+              {% endif %}
+            </div>
+
+            <h3 class="font-heading text-sm font-bold text-white">{{ step.title }}</h3>
+            <p class="text-[11px] text-slate-400 leading-relaxed">{{ step.desc }}</p>
+
+            <div class="flex flex-wrap gap-1 pt-1">
+              {% for sk in step.skills %}
+              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                {{ sk }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Phase Progress -->
+          <div class="pt-3 border-t border-slate-800/80">
+            <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+              <span>Phase Progress</span>
+              <span class="font-bold text-white">{{ step.step_progress }}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div class="{% if step.is_completed %}bg-emerald-400{% else %}bg-indigo-500{% endif %} h-1.5 rounded-full" style="width: {{ step.step_progress }}%;"></div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

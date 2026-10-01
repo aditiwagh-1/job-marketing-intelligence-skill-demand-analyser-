@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}Salary Intelligence &amp; Compensation Insights - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Salary Intelligence{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header & Dynamic Filter Form -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+          <i class="fa-solid fa-indian-rupee-sign"></i> Compensation Analytics
+        </div>
+        <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Salary Intelligence</h1>
+        <p class="text-slate-400 text-xs">
+          Filter compensation data by role, location, and experience to analyze realistic Indian tech market pay bands.
+        </p>
+      </div>
+
+      <a href="{% url 'recommendations:salary_predictor' %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition-all shrink-0">
+        <i class="fa-solid fa-brain"></i> Try AI Salary Predictor &rarr;
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <form action="{% url 'analytics:salary_intelligence' %}" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
+      
+      <!-- Role -->
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Job Role</label>
+        <select name="role" onchange="this.form.submit()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+          {% for r in data.all_roles %}
+          <option value="{{ r }}" {% if data.selected_role == r %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Location -->
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Location</label>
+        <select name="location" onchange="this.form.submit()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+          {% for loc in data.all_locations %}
+          <option value="{{ loc }}" {% if data.selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Experience -->
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Experience Level</label>
+        <select name="experience" onchange="this.form.submit()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+          {% for exp in data.all_experiences %}
+          <option value="{{ exp }}" {% if data.selected_experience == exp %}selected{% endif %}>{{ exp }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Submit / Reset Button -->
+      <div class="flex items-end gap-2">
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md transition-all">
+          Apply Filter
+        </button>
+        <a href="{% url 'analytics:salary_intelligence' %}" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs" title="Reset Filters">
+          <i class="fa-solid fa-rotate-left"></i>
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Salary KPI Band Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold uppercase text-slate-400">Average Salary</span>
+      <div class="font-heading text-3xl font-extrabold text-emerald-400 mt-1">₹{{ data.avg_salary }} LPA</div>
+      <p class="text-[10px] text-slate-400 mt-1">Mean compensation</p>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold uppercase text-slate-400">Median (P50)</span>
+      <div class="font-heading text-3xl font-extrabold text-cyan-400 mt-1">₹{{ data.median_salary }} LPA</div>
+      <p class="text-[10px] text-slate-400 mt-1">Midpoint market rate</p>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold uppercase text-slate-400">Minimum Found</span>
+      <div class="font-heading text-3xl font-extrabold text-slate-300 mt-1">₹{{ data.min_salary }} LPA</div>
+      <p class="text-[10px] text-slate-400 mt-1">Entry baseline</p>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold uppercase text-slate-400">Maximum Found</span>
+      <div class="font-heading text-3xl font-extrabold text-purple-400 mt-1">₹{{ data.max_salary }} LPA</div>
+      <p class="text-[10px] text-slate-400 mt-1">Top tier ceiling</p>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800 col-span-2 lg:col-span-1">
+      <span class="text-[11px] font-semibold uppercase text-slate-400">Middle 50% Band (IQR)</span>
+      <div class="font-heading text-xl font-bold text-indigo-400 mt-1.5">₹{{ data.p25 }}L - ₹{{ data.p75 }}L</div>
+      <p class="text-[10px] text-slate-400 mt-1">25th to 75th percentile</p>
+    </div>
+
+  </div>
+
+  <!-- Salary Charts Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Chart 1: Salary Distribution Histogram -->
+    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div>
+        <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-chart-simple text-emerald-400"></i> Salary Distribution (LPA Bins)
+        </h2>
+        <p class="text-xs text-slate-400">Number of job postings across compensation brackets</p>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-salary-dist"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Salary by Experience Curve -->
+    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div>
+        <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-arrow-trend-up text-cyan-400"></i> Experience vs Salary Curve (LPA)
+        </h2>
+        <p class="text-xs text-slate-400">Compensation progression across seniority tiers</p>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-exp-salary"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 3: Salary Comparison by Tech Hubs (Full Width) -->
+    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4 lg:col-span-2">
+      <div>
+        <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-city text-purple-400"></i> Average Salary by Tech Hub / Location (LPA)
+        </h2>
+        <p class="text-xs text-slate-400">Regional compensation premiums across key Indian technology clusters</p>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-loc-salary"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const distData = {{ dist_json|safe }};
+    const expData = {{ exp_salary_json|safe }};
+    const locData = {{ loc_salary_json|safe }};
+
+    // 1. Distribution Chart
+    if (distData && distData.labels) {
+      createBarChart('chart-salary-dist', distData.labels, distData.counts, 'Job Postings', '#10b981', false);
+    }
+
+    // 2. Experience vs Salary Line Chart
+    if (expData && expData.labels) {
+      createLineChart('chart-exp-salary', expData.labels, expData.avg, 'Average Salary (LPA)', '#06b6d4', true);
+    }
+
+    // 3. Location Salary Chart
+    if (locData && locData.labels) {
+      createBarChart('chart-loc-salary', locData.labels, locData.salaries, 'Avg Salary (LPA)', '#8b5cf6', false);
+    }
+  });
+</script>
+{% endblock %}

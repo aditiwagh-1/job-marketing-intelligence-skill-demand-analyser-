@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Skill Demand Analytics - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Skill Demand Intelligence{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header & Role Selector -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="space-y-1 max-w-xl">
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+        <i class="fa-solid fa-layer-group"></i> Skill Market Intelligence
+      </div>
+      <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Skill Demand Analytics</h1>
+      <p class="text-slate-400 text-xs leading-relaxed">
+        Discover the most requested technical competencies, libraries, and frameworks across specific job roles.
+      </p>
+    </div>
+
+    <!-- Role Filter Form -->
+    <form action="{% url 'analytics:skill_demand' %}" method="GET" class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+      <div class="w-full sm:w-auto">
+        <label for="role-select" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Job Role:</label>
+        <select id="role-select" name="role" onchange="this.form.submit()" class="w-full sm:w-64 bg-slate-900 border border-indigo-500/40 rounded-xl px-4 py-2.5 text-white text-sm font-semibold focus:outline-none focus:border-indigo-500 shadow-lg shadow-indigo-500/10">
+          <option value="All Roles" {% if data.selected_role == 'All Roles' %}selected{% endif %}>All Roles Combined</option>
+          {% for role in data.all_roles %}
+          <option value="{{ role }}" {% if data.selected_role == role %}selected{% endif %}>{{ role }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="w-full sm:w-auto sm:mt-5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/30">
+        Analyze Role
+      </button>
+    </form>
+  </div>
+
+  <!-- Role Highlights Banner -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase">Target Role</span>
+      <div class="font-heading text-xl font-bold text-white mt-1">{{ data.selected_role }}</div>
+    </div>
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase">Analyzed Sample Size</span>
+      <div class="font-heading text-xl font-bold text-cyan-400 mt-1">{{ data.total_jobs_analyzed }} Active Postings</div>
+    </div>
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase">Next Action</span>
+      <div class="mt-1">
+        <a href="{% url 'recommendations:skill_gap' %}?target_role={{ data.selected_role }}" class="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-bullseye"></i> Compare Against My Skills &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Skills Ranking + Domain Radar Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Top Demanded Skills List (7 cols) -->
+    <div class="lg:col-span-7 glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-fire text-amber-400"></i> Top Demanded Skills for {{ data.selected_role }}
+          </h2>
+          <p class="text-xs text-slate-400">Percentage of job postings requiring each specific skill</p>
+        </div>
+      </div>
+
+      <div class="space-y-3.5 pt-2">
+        {% for skill in data.top_skills %}
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5 font-bold text-slate-100">
+              <div class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
+                <i class="{{ skill.icon }}"></i>
+              </div>
+              <span>{{ skill.name }}</span>
+              <span class="text-[10px] font-normal text-slate-400">({{ skill.category }})</span>
+            </div>
+            <div class="font-mono font-bold text-indigo-400 text-sm">{{ skill.percentage }}%</div>
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 h-2 rounded-full transition-all duration-500" style="width: {{ skill.percentage }}%;"></div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-xs text-slate-500 py-4">No skills mapped for this role category yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Domain Balance Radar Chart (5 cols) -->
+    <div class="lg:col-span-5 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+      <div>
+        <h2 class="font-heading text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-dharmachakra text-purple-400"></i> Skill Domain Balance
+        </h2>
+        <p class="text-xs text-slate-400">Average demand across engineering &amp; analytics domains</p>
+      </div>
+
+      <div class="h-80 relative flex items-center justify-center">
+        <canvas id="chart-radar"></canvas>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-center">
+        <span class="text-xs text-slate-300">Looking to upskill in {{ data.selected_role }}?</span>
+        <a href="{% url 'recommendations:skill_gap' %}?target_role={{ data.selected_role }}" class="block text-xs font-bold text-indigo-400 hover:text-indigo-300 mt-1">
+          Open Skill Gap Learning Path &rarr;
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Skill Categories Detailed Grid -->
+  <div class="space-y-4">
+    <div>
+      <h2 class="font-heading text-xl font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-cubes text-cyan-400"></i> Skill Categories Breakdown
+      </h2>
+      <p class="text-xs text-slate-400">Granular view of required tools, grouped by functional technology stack.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for cat_key, cat in data.category_grouped.items %}
+      {% if cat.skills %}
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+        <div class="flex items-center gap-2 pb-2 border-b border-slate-800 text-sm font-bold text-white">
+          <i class="fa-solid {{ cat.icon }} text-indigo-400"></i>
+          <span>{{ cat.title }}</span>
+        </div>
+
+        <div class="space-y-2">
+          {% for sk in cat.skills %}
+          <div class="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-slate-900/50 hover:bg-slate-800 transition-colors">
+            <span class="text-slate-300">{{ sk.name }}</span>
+            <span class="font-mono text-indigo-300 font-semibold">{{ sk.percentage }}%</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const radarData = {{ radar_json|safe }};
+    if (radarData && radarData.labels) {
+      createRadarChart('chart-radar', radarData.labels, radarData.scores, 'Domain Intensity %');
+    }
+  });
+</script>
+{% endblock %}

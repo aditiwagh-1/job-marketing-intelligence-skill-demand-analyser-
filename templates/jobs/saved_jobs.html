@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Jobs &amp; Bookmarks - JobMarketIQ{% endblock %}
+{% block breadcrumb %}My Bookmarked Jobs{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Saved Jobs</h1>
+      <p class="text-slate-400 text-xs mt-0.5">Manage and track your bookmarked career opportunities.</p>
+    </div>
+
+    <a href="{% url 'jobs:job_list' %}" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md">
+      Explore More Jobs &rarr;
+    </a>
+  </div>
+
+  <!-- Saved Jobs List -->
+  <div class="space-y-4">
+    {% for item in saved_jobs %}
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ item.job.role_category }}</span>
+        <h2 class="font-heading text-lg font-bold text-white hover:text-indigo-400">
+          <a href="{% url 'jobs:job_detail' item.job.id %}">{{ item.job.title }}</a>
+        </h2>
+        <p class="text-xs text-slate-300 flex items-center gap-2">
+          <span>{{ item.job.company.name }}</span>
+          <span>&middot;</span>
+          <span class="text-slate-400"><i class="fa-solid fa-location-dot text-slate-500"></i> {{ item.job.location }}</span>
+          <span>&middot;</span>
+          <span class="text-emerald-400 font-bold">₹{{ item.job.salary_min|floatformat:1 }} - {{ item.job.salary_max|floatformat:1 }} LPA</span>
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="{% url 'jobs:job_detail' item.job.id %}" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md">
+          View Details
+        </a>
+        <a href="{% url 'jobs:toggle_save_job' item.job.id %}" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-400 border border-slate-700 text-xs transition-colors" title="Remove from Bookmarks">
+          <i class="fa-solid fa-trash"></i>
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="glass-panel p-12 rounded-3xl border border-slate-800 text-center space-y-3">
+      <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center text-xl mx-auto">
+        <i class="fa-regular fa-bookmark"></i>
+      </div>
+      <h2 class="font-heading text-lg font-bold text-white">No saved jobs yet</h2>
+      <p class="text-xs text-slate-400 max-w-sm mx-auto">
+        Browse open positions and click the heart bookmark icon to save jobs for easy tracking.
+      </p>
+      <a href="{% url 'jobs:job_list' %}" class="inline-block mt-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md">
+        Browse Tech Jobs
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

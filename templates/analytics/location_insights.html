@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Location Insights &amp; Tech Hubs - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Location &amp; Remote Insights{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="space-y-1">
+    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+      <i class="fa-solid fa-map-location-dot"></i> Geographical Intelligence
+    </div>
+    <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Location Insights &amp; Tech Hubs</h1>
+    <p class="text-slate-400 text-xs">
+      Analyze hiring volume, average salary packages, and remote/hybrid work distributions across top tech cities.
+    </p>
+  </div>
+
+  <!-- City Comparisons Chart -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+    <div>
+      <h2 class="font-heading text-lg font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-chart-column text-cyan-400"></i> Openings by Tech Hub
+      </h2>
+      <p class="text-xs text-slate-400">Total job openings and compensation overview across Indian tech ecosystems</p>
+    </div>
+    <div class="h-72 relative">
+      <canvas id="chart-locations-volume"></canvas>
+    </div>
+  </div>
+
+  <!-- Location Breakdown Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for loc in locations %}
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 card-hover space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="font-heading text-lg font-bold text-white">{{ loc.name }}</h3>
+          <p class="text-xs text-slate-400 mt-0.5">{{ loc.job_count }} Active Job Postings</p>
+        </div>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          ₹{{ loc.avg_salary }} LPA
+        </span>
+      </div>
+
+      <!-- Work mode distribution for this city -->
+      <div class="space-y-2 pt-2 border-t border-slate-800/80">
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Work Mode Split</div>
+        
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Hybrid</span>
+            <span class="font-bold text-indigo-400">{{ loc.hybrid_pct }}%</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Remote</span>
+            <span class="font-bold text-cyan-400">{{ loc.remote_pct }}%</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">On-site</span>
+            <span class="font-bold text-slate-300">{{ loc.onsite_pct }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <a href="{% url 'jobs:job_list' %}?location={{ loc.name }}" class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 transition-colors">
+          View Jobs in {{ loc.name }} &rarr;
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const locChartData = {{ chart_json|safe }};
+    if (locChartData && locChartData.labels) {
+      createBarChart('chart-locations-volume', locChartData.labels, locChartData.counts, 'Openings', '#06b6d4', false);
+    }
+  });
+</script>
+{% endblock %}

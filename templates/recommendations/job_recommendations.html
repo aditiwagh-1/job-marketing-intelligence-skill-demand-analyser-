@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Personalized Job Recommendations - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Personalized Job Matches{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header Banner -->
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Content-Based Recommendation Engine
+    </div>
+    <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Recommended Jobs for Your Skill Set</h1>
+    <p class="text-slate-300 text-xs sm:text-sm max-w-3xl leading-relaxed">
+      Positions dynamically ranked by calculating cosine overlap and Jaccard similarity between your profile competencies and job requirements.
+    </p>
+
+    <!-- Filters -->
+    <form action="{% url 'recommendations:job_recommendations' %}" method="GET" class="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-800">
+      <div class="flex items-center gap-2 text-xs">
+        <label class="text-slate-400 font-semibold">Filter Role:</label>
+        <select name="role" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+          {% for r in all_roles %}
+          <option value="{{ r }}" {% if selected_role == r %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs">
+        <label class="text-slate-400 font-semibold">Location:</label>
+        <select name="location" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+          {% for loc in all_locations %}
+          <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <a href="{% url 'accounts:profile' %}" class="ml-auto text-xs text-indigo-400 hover:underline">
+        <i class="fa-solid fa-pen-to-square"></i> Modify Your Skills
+      </a>
+    </form>
+  </div>
+
+  <!-- Recommended Jobs Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in matched_jobs %}
+    <div class="glass-panel p-6 rounded-3xl border {% if item.match_score >= 80 %}border-emerald-500/40 bg-gradient-to-b from-emerald-950/20 to-slate-900{% elif item.match_score >= 50 %}border-indigo-500/30{% else %}border-slate-800{% endif %} card-hover flex flex-col justify-between space-y-4">
+      
+      <div class="space-y-3">
+        <!-- Top: Role & Match Badge -->
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ item.job.role_category }}</span>
+            <h2 class="font-heading text-base font-bold text-white hover:text-indigo-400 transition-colors mt-0.5">
+              <a href="{% url 'jobs:job_detail' item.job.id %}">{{ item.job.title }}</a>
+            </h2>
+            <p class="text-xs text-slate-300">{{ item.job.company.name }}</p>
+          </div>
+
+          <div class="text-right shrink-0">
+            <span class="inline-block text-xs font-black px-2.5 py-1 rounded-xl {% if item.match_score >= 80 %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% elif item.match_score >= 50 %}bg-cyan-500/20 text-cyan-300 border border-cyan-500/30{% else %}bg-slate-800 text-slate-400{% endif %}">
+              {{ item.match_score }}% Match
+            </span>
+          </div>
+        </div>
+
+        <!-- Location & Salary -->
+        <div class="flex items-center justify-between text-xs py-2 border-y border-slate-800/60 text-slate-400">
+          <span><i class="fa-solid fa-location-dot text-slate-500"></i> {{ item.job.location }}</span>
+          <span class="font-bold text-emerald-400">₹{{ item.job.salary_min|floatformat:1 }}-{{ item.job.salary_max|floatformat:1 }} LPA</span>
+        </div>
+
+        <!-- Matched Skills (Green) -->
+        <div class="space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
+            ✓ Your Matching Skills ({{ item.matched_count }}/{{ item.total_skills_count }}):
+          </span>
+          <div class="flex flex-wrap gap-1">
+            {% for ms in item.matched_skills %}
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-300 border border-emerald-500/20">
+              {{ ms.name }}
+            </span>
+            {% empty %}
+            <span class="text-[10px] text-slate-500">No overlapping skills</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Missing Skills (Gray) -->
+        {% if item.missing_skills %}
+        <div class="space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+            + Skills to Learn:
+          </span>
+          <div class="flex flex-wrap gap-1">
+            {% for mis in item.missing_skills|slice:":3" %}
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+              {{ mis.name }}
+            </span>
+            {% endfor %}
+            {% if item.missing_skills|length > 3 %}
+            <span class="text-[10px] text-slate-500">+{{ item.missing_skills|length|add:"-3" }} more</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+        <a href="{% url 'jobs:job_detail' item.job.id %}" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+          View Details &rarr;
+        </a>
+        
+        <button data-job-id="{{ item.job.id }}" class="save-job-btn p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs transition-colors" title="Bookmark Job">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+
+    </div>
+    {% empty %}
+    <div class="glass-panel p-12 rounded-3xl border border-slate-800 text-center space-y-3 col-span-3">
+      <h2 class="font-heading text-lg font-bold text-white">No jobs found matching current filters</h2>
+      <p class="text-xs text-slate-400 max-w-sm mx-auto">
+        Try clearing role or location filters to see broader recommendations.
+      </p>
+      <a href="{% url 'recommendations:job_recommendations' %}" class="inline-block px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold">
+        Reset Filters
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

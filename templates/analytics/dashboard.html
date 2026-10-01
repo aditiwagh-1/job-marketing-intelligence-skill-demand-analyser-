@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Market Analytics Dashboard - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Market Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto">
+
+  <!-- Header & Filter Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-1">
+        <i class="fa-solid fa-chart-line"></i> Macro Market Insights
+      </div>
+      <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Job Market Intelligence Dashboard</h1>
+      <p class="text-slate-400 text-xs mt-0.5">Real-time aggregate data across Indian tech hubs, role distributions, and skill demand patterns.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{% url 'analytics:skill_demand' %}" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-layer-group text-indigo-400"></i> Skill Demand
+      </a>
+      <a href="{% url 'analytics:salary_intelligence' %}" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+        <i class="fa-solid fa-indian-rupee-sign"></i> Salary Intel
+      </a>
+    </div>
+  </div>
+
+  <!-- 6 KPI Metric Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    
+    <!-- Total Jobs -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">Total Jobs</span>
+        <i class="fa-solid fa-briefcase text-indigo-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-2xl font-extrabold text-white">{{ kpis.total_jobs }}</div>
+      <p class="text-[10px] text-emerald-400 mt-1 font-medium">520 Active Openings</p>
+    </div>
+
+    <!-- Companies -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">Companies</span>
+        <i class="fa-solid fa-building text-cyan-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-2xl font-extrabold text-white">{{ kpis.total_companies }}</div>
+      <p class="text-[10px] text-cyan-400 mt-1 font-medium">Enterprises &amp; Unicorns</p>
+    </div>
+
+    <!-- Job Roles -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">Job Roles</span>
+        <i class="fa-solid fa-layer-group text-purple-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-2xl font-extrabold text-white">{{ kpis.unique_roles }}</div>
+      <p class="text-[10px] text-purple-400 mt-1 font-medium">Distinct Career Paths</p>
+    </div>
+
+    <!-- Average Salary -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">Avg Salary</span>
+        <i class="fa-solid fa-indian-rupee-sign text-emerald-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-2xl font-extrabold text-emerald-400">₹{{ kpis.avg_salary }}L</div>
+      <p class="text-[10px] text-slate-400 mt-1 font-medium">Per Annum (CTC)</p>
+    </div>
+
+    <!-- Remote Opportunities -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">Remote Jobs</span>
+        <i class="fa-solid fa-house-laptop text-amber-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-2xl font-extrabold text-amber-400">{{ kpis.remote_percentage }}%</div>
+      <p class="text-[10px] text-slate-400 mt-1 font-medium">{{ kpis.remote_jobs_count }} Remote Roles</p>
+    </div>
+
+    <!-- Top Skill -->
+    <div class="glass-panel p-4 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-[11px] font-semibold uppercase tracking-wider">#1 Top Skill</span>
+        <i class="fa-solid fa-bolt text-rose-400 text-xs"></i>
+      </div>
+      <div class="font-heading text-xl font-extrabold text-white truncate">{{ kpis.top_skill_name }}</div>
+      <p class="text-[10px] text-rose-400 mt-1 font-medium">{{ kpis.top_skill_percentage }}% of all jobs</p>
+    </div>
+
+  </div>
+
+  <!-- 6 Interactive Charts Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Chart 1: Jobs by Job Role -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-indigo-400"></i> Openings by Job Role
+          </h2>
+          <p class="text-[11px] text-slate-400">Distribution of available positions across specialized tech roles</p>
+        </div>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-roles"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Top Hiring Tech Hubs / Locations -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-location-dot text-cyan-400"></i> Jobs by Location / Hub
+          </h2>
+          <p class="text-[11px] text-slate-400">Hiring volume across major Indian technology centers</p>
+        </div>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-locations"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 3: Remote vs Hybrid vs On-site -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-laptop-house text-purple-400"></i> Work Mode Distribution
+          </h2>
+          <p class="text-[11px] text-slate-400">Remote, Hybrid, and On-site workplace configurations</p>
+        </div>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-workmode"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 4: Jobs by Experience Level -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-stairs text-emerald-400"></i> Jobs by Experience Level
+          </h2>
+          <p class="text-[11px] text-slate-400">Entry, Mid, Senior, and Lead level job availability</p>
+        </div>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-experience"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 5: Top Hiring Tech Companies -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-building text-amber-400"></i> Top 10 Hiring Companies
+          </h2>
+          <p class="text-[11px] text-slate-400">Enterprises and startups actively expanding their tech teams</p>
+        </div>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-companies"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 6: Top Demanded Skills -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-heading text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-rose-400"></i> Top Demanded Skills (% of Postings)
+          </h2>
+          <p class="text-[11px] text-slate-400">Core technologies most requested in candidate profiles</p>
+        </div>
+        <a href="{% url 'analytics:skill_demand' %}" class="text-xs text-indigo-400 hover:underline">Deep Breakdown</a>
+      </div>
+      <div class="h-72 relative">
+        <canvas id="chart-skills"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const rawData = {{ charts_data_json|safe }};
+    if (!rawData || !rawData.roles) return;
+
+    // 1. Roles Chart
+    createBarChart('chart-roles', rawData.roles.labels, rawData.roles.counts, 'Openings', '#6366f1', true);
+
+    // 2. Locations Chart
+    createBarChart('chart-locations', rawData.locations.labels, rawData.locations.counts, 'Openings', '#06b6d4', false);
+
+    // 3. Work Mode Doughnut Chart
+    createDoughnutChart('chart-workmode', rawData.work_modes.labels, rawData.work_modes.counts, ['#06b6d4', '#6366f1', '#a855f7']);
+
+    // 4. Experience Level Bar Chart
+    createBarChart('chart-experience', rawData.experience.labels, rawData.experience.counts, 'Openings', '#10b981', false);
+
+    // 5. Companies Chart
+    createBarChart('chart-companies', rawData.companies.labels, rawData.companies.counts, 'Openings', '#f59e0b', true);
+
+    // 6. Skills Chart
+    createBarChart('chart-skills', rawData.skills.labels, rawData.skills.percentages, '% Demand', '#ec4899', true);
+  });
+</script>
+{% endblock %}

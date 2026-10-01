@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Market Intelligence &amp; Skill Demand Analytics Platform{% endblock %}
+{% block breadcrumb %}Home Overview{% endblock %}
+
+{% block content %}
+<div class="space-y-12 max-w-7xl mx-auto">
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 p-8 sm:p-12 lg:p-16">
+    <!-- Glow Background Accents -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-3xl space-y-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
+        <i class="fa-solid fa-sparkles text-indigo-400"></i> Next-Gen Career Analytics
+      </div>
+
+      <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+        JOB MARKET <br>
+        <span class="gradient-text">INTELLIGENCE</span>
+      </h1>
+
+      <p class="text-slate-300 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl">
+        Understand the job market. Discover the high-demand skills tech companies need. Close your skill gap and build your career with real-time data.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4 pt-2">
+        <a href="{% url 'analytics:dashboard' %}" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all">
+          <i class="fa-solid fa-chart-pie"></i> Explore Job Market
+        </a>
+        <a href="{% url 'recommendations:skill_gap' %}" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-100 font-semibold text-sm hover:-translate-y-0.5 transition-all">
+          <i class="fa-solid fa-bullseye text-cyan-400"></i> Analyze My Skills
+        </a>
+        <a href="{% url 'recommendations:salary_predictor' %}" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-slate-900/60 hover:bg-slate-800/60 border border-indigo-500/30 text-indigo-300 font-semibold text-sm hover:-translate-y-0.5 transition-all">
+          <i class="fa-solid fa-brain text-purple-400"></i> Predict Salary
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Market Statistics Grid -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider">Jobs Analyzed</span>
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+      </div>
+      <div class="font-heading text-3xl sm:text-4xl font-extrabold text-white">{{ total_jobs }}+</div>
+      <p class="text-xs text-emerald-400 mt-2 flex items-center gap-1 font-medium">
+        <i class="fa-solid fa-arrow-trend-up"></i> Live Tech Database
+      </p>
+    </div>
+
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider">Tech Companies</span>
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+          <i class="fa-solid fa-building"></i>
+        </div>
+      </div>
+      <div class="font-heading text-3xl sm:text-4xl font-extrabold text-white">{{ total_companies }}+</div>
+      <p class="text-xs text-cyan-400 mt-2 flex items-center gap-1 font-medium">
+        <i class="fa-solid fa-check-circle"></i> Top Enterprises &amp; Unicorns
+      </p>
+    </div>
+
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider">Unique Roles</span>
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+      </div>
+      <div class="font-heading text-3xl sm:text-4xl font-extrabold text-white">{{ unique_roles }}+</div>
+      <p class="text-xs text-purple-400 mt-2 flex items-center gap-1 font-medium">
+        <i class="fa-solid fa-network-wired"></i> Data, AI &amp; Software tracks
+      </p>
+    </div>
+
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 card-hover">
+      <div class="flex items-center justify-between text-slate-400 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider">Average Salary</span>
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+      </div>
+      <div class="font-heading text-3xl sm:text-4xl font-extrabold text-emerald-400">₹{{ avg_salary }} LPA</div>
+      <p class="text-xs text-slate-400 mt-2 flex items-center gap-1 font-medium">
+        <i class="fa-solid fa-chart-line"></i> Benchmark across India
+      </p>
+    </div>
+
+  </section>
+
+  <!-- Platform Features Section -->
+  <section class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <h2 class="font-heading text-2xl sm:text-3xl font-bold text-white">Platform Capabilities</h2>
+        <p class="text-slate-400 text-sm mt-1">End-to-end data intelligence to turn raw job postings into clear career decisions.</p>
+      </div>
+      <a href="{% url 'analytics:dashboard' %}" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+        View All Dashboards <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Card 1 -->
+      <a href="{% url 'analytics:dashboard' %}" class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-chart-simple"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">📊 Market Analytics</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Interactive charts exploring hiring volume across roles, cities, experience levels, and remote work trends.
+        </p>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="{% url 'analytics:skill_demand' %}" class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">⭐ Skill Demand Analytics</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Deep-dive into programming, database, visualization, and cloud skills required for any specific job role.
+        </p>
+      </a>
+
+      <!-- Card 3 -->
+      <a href="{% url 'recommendations:skill_gap' %}" class="glass-panel p-6 rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/20 to-slate-900 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">🧠 Skill Gap Analyzer</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Compare your current technical skills against market requirements, get a match %, and unlock a tailored learning roadmap.
+        </p>
+      </a>
+
+      <!-- Card 4 -->
+      <a href="{% url 'analytics:salary_intelligence' %}" class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-amber-400 transition-colors">💰 Salary Intelligence</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Inspect compensation percentiles, salary by experience curve, and location premiums across Indian tech hubs.
+        </p>
+      </a>
+
+      <!-- Card 5 -->
+      <a href="{% url 'recommendations:career_recommendations' %}" class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-route"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-purple-400 transition-colors">🎯 Career Recommendations</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Match your skill profile against 15+ tech career paths to discover adjacent high-fit roles and career pivot paths.
+        </p>
+      </a>
+
+      <!-- Card 6 -->
+      <a href="{% url 'recommendations:salary_predictor' %}" class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover group block">
+        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3 class="font-heading text-lg font-bold text-white group-hover:text-rose-400 transition-colors">🤖 ML Salary Predictor</h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Random Forest regression engine predicting your fair market salary based on experience, role, location, and skills.
+        </p>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- In-Demand Roles & Top Skills Quick Matrix -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Top Roles -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-fire text-amber-400"></i> Top Demanded Job Roles
+        </h3>
+        <a href="{% url 'jobs:job_list' %}" class="text-xs text-indigo-400 hover:underline">Explore all</a>
+      </div>
+
+      <div class="space-y-3">
+        {% for role in top_roles %}
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 hover:border-slate-700 transition-colors">
+          <div>
+            <a href="{% url 'jobs:job_list' %}?role={{ role.role_category }}" class="text-sm font-semibold text-white hover:text-indigo-400">
+              {{ role.role_category }}
+            </a>
+            <p class="text-xs text-slate-400">{{ role.job_count }} open positions</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-bold text-emerald-400">₹{{ role.avg_sal|floatformat:1 }} LPA</span>
+            <p class="text-[10px] text-slate-500">Avg Package</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Trending Skills -->
+    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-heading text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-bolt text-indigo-400"></i> Most Demanded Tech Skills
+        </h3>
+        <a href="{% url 'analytics:skill_demand' %}" class="text-xs text-indigo-400 hover:underline">Skill Breakdown</a>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        {% for skill in top_skills %}
+        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/60 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i class="{{ skill.icon }} text-indigo-400 text-sm w-4 text-center"></i>
+            <span class="text-xs font-semibold text-slate-200">{{ skill.name }}</span>
+          </div>
+          <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/20">
+            {{ skill.job_count }} jobs
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Featured Jobs Section -->
+  <section class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="font-heading text-2xl font-bold text-white">Latest Job Openings</h2>
+        <p class="text-slate-400 text-xs mt-0.5">Explore high-growth tech positions recently posted by leading companies.</p>
+      </div>
+      <a href="{% url 'jobs:job_list' %}" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+        View All {{ total_jobs }} Jobs &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for job in featured_jobs %}
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800/80 card-hover flex flex-col justify-between">
+        <div>
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ job.role_category }}</span>
+              <h3 class="font-heading text-base font-bold text-white mt-0.5 hover:text-indigo-400">
+                <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
+              </h3>
+              <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-1">
+                <i class="fa-solid fa-building text-slate-500"></i> {{ job.company.name }}
+              </p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+              ₹{{ job.salary_min|floatformat:1 }} - {{ job.salary_max|floatformat:1 }} LPA
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400 py-2 border-y border-slate-800/60 my-3">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-location-dot text-slate-500"></i> {{ job.location }}</span>
+            <span>&middot;</span>
+            <span class="flex items-center gap-1"><i class="fa-solid fa-clock text-slate-500"></i> {{ job.work_mode }}</span>
+            <span>&middot;</span>
+            <span>{{ job.experience_level }}</span>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            {% for skill in job.skills.all|slice:":4" %}
+            <span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700">
+              {{ skill.name }}
+            </span>
+            {% endfor %}
+            {% if job.skills.count > 4 %}
+            <span class="text-[11px] px-1.5 py-0.5 rounded-md bg-slate-800/50 text-slate-400">+{{ job.skills.count|add:"-4" }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="pt-5 mt-4 border-t border-slate-800/60 flex items-center justify-between">
+          <a href="{% url 'jobs:job_detail' job.id %}" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+            View Job Details <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </a>
+          <button data-job-id="{{ job.id }}" class="save-job-btn p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs transition-colors" title="Bookmark Job">
+            <i class="fa-regular fa-heart"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="rounded-3xl bg-gradient-to-r from-indigo-900/50 via-purple-900/40 to-cyan-900/50 border border-indigo-500/30 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+    <div class="space-y-2 max-w-xl">
+      <h3 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Ready to bridge your skill gap?</h3>
+      <p class="text-sm text-slate-300">
+        Benchmark your skills against live industry requirements and receive an automated learning roadmap today.
+      </p>
+    </div>
+    <a href="{% url 'recommendations:skill_gap' %}" class="px-8 py-3.5 rounded-2xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 shadow-xl shadow-white/10 hover:scale-105 transition-all shrink-0">
+      Launch Skill Analyzer &rarr;
+    </a>
+  </section>
+
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}About &amp; Architecture - Job Market Intelligence{% endblock %}
+{% block breadcrumb %}Platform Architecture{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-10">
+
+  <!-- Header -->
+  <div class="text-center space-y-3">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+      Architecture &amp; Design
+    </div>
+    <h1 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+      About Job Market Intelligence &amp; Skill Demand Analytics
+    </h1>
+    <p class="text-slate-400 text-sm max-w-2xl mx-auto">
+      An enterprise-grade, data-driven career analytics platform built with Django, SQLite, Tailwind CSS, Pandas, NumPy, Scikit-learn, and Chart.js.
+    </p>
+  </div>
+
+  <!-- Tech Stack Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-2">
+      <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+        <i class="fa-brands fa-python"></i>
+      </div>
+      <div class="text-xs text-slate-400">Backend Framework</div>
+      <div class="font-heading font-bold text-white text-sm">Django 6.1 + Python</div>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-2">
+      <div class="w-10 h-10 mx-auto rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-wind"></i>
+      </div>
+      <div class="text-xs text-slate-400">Styling &amp; Design</div>
+      <div class="font-heading font-bold text-white text-sm">Tailwind CSS 3</div>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-2">
+      <div class="w-10 h-10 mx-auto rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-chart-pie"></i>
+      </div>
+      <div class="text-xs text-slate-400">Data Analytics</div>
+      <div class="font-heading font-bold text-white text-sm">Pandas + Chart.js 4</div>
+    </div>
+
+    <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-2">
+      <div class="w-10 h-10 mx-auto rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-brain"></i>
+      </div>
+      <div class="text-xs text-slate-400">Machine Learning</div>
+      <div class="font-heading font-bold text-white text-sm">Scikit-Learn (Random Forest)</div>
+    </div>
+  </div>
+
+  <!-- Modular Architecture Breakdown -->
+  <div class="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6">
+    <h2 class="font-heading text-xl font-bold text-white flex items-center gap-2.5">
+      <i class="fa-solid fa-cubes text-indigo-400"></i> Modular 5-App Django Architecture
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <div class="font-bold text-indigo-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-house"></i> 1. Core Module (`core`)
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Handles landing page presentation, navigation shell, search bar routing, live metric aggregation counters, and static info pages.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <div class="font-bold text-cyan-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-briefcase"></i> 2. Jobs Module (`jobs`)
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Maintains normalized relational models for Jobs, Skills, Companies, and Saved Jobs. Implements multi-faceted search, salary sliders, and pagination.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <div class="font-bold text-purple-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-chart-line"></i> 3. Analytics Module (`analytics`)
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Executes Pandas statistical pipelines: KPI aggregations, role distributions, skill demand frequency matrix, salary progression curves, and location intelligence.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+        <div class="font-bold text-emerald-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-bullseye"></i> 4. Recommendations &amp; ML Module (`recommendations`)
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Powers the signature Skill Gap Analyzer, career pathway compatibility scoring, content-based job recommender, and Scikit-Learn Random Forest Salary Predictor.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5 md:col-span-2">
+        <div class="font-bold text-amber-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-user-gear"></i> 5. Accounts &amp; Profile Module (`accounts`)
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Provides user authentication, profile management, interactive skill tag editor, target career goal configuration, and saved jobs bookmarks.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Flow Diagram / Pipeline -->
+  <div class="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6">
+    <h2 class="font-heading text-xl font-bold text-white flex items-center gap-2.5">
+      <i class="fa-solid fa-diagram-project text-cyan-400"></i> Data Analytics &amp; ML Pipeline
+    </h2>
+
+    <div class="p-6 rounded-2xl bg-slate-950/70 border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+      <div class="text-center py-2 text-indigo-400 font-bold tracking-wider">END-TO-END DATA FLOW</div>
+      <div class="flex flex-col items-center space-y-2 mt-4">
+        <div class="px-4 py-2 rounded-xl bg-slate-800 text-white border border-slate-700">Raw Job Postings &amp; Market Feeds</div>
+        <div class="text-slate-500">&darr;</div>
+        <div class="px-4 py-2 rounded-xl bg-slate-800 text-cyan-300 border border-cyan-500/30">Pandas Cleaning &amp; Skill Extraction / Normalization</div>
+        <div class="text-slate-500">&darr;</div>
+        <div class="px-4 py-2 rounded-xl bg-slate-800 text-emerald-300 border border-emerald-500/30">SQLite Relational Database (Jobs &harr; Skills Many-to-Many)</div>
+        <div class="text-slate-500">&darr;</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
+          <div class="p-3 rounded-xl bg-slate-900 border border-indigo-500/30 text-center">
+            <div class="text-indigo-300 font-bold">Analytics Services</div>
+            <div class="text-[11px] text-slate-400">KPIs &middot; Distributions &middot; Demand</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-purple-500/30 text-center">
+            <div class="text-purple-300 font-bold">ML Engine &amp; Recommender</div>
+            <div class="text-[11px] text-slate-400">Random Forest &middot; Cosine Similarity</div>
+          </div>
+        </div>
+        <div class="text-slate-500">&darr;</div>
+        <div class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/30">
+          Tailwind CSS UI &amp; Interactive Chart.js Dashboards
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Tech Jobs - JobMarketIQ{% endblock %}
+{% block breadcrumb %}Job Listings &amp; Search{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">Search Tech Jobs</h1>
+      <p class="text-slate-400 text-xs mt-0.5">Explore {{ total_count }} verified technology openings across India and remote hubs.</p>
+    </div>
+
+    <!-- Mobile Filter Toggle Button (Visible on screens < lg) -->
+    <div class="flex items-center gap-2 lg:hidden">
+      <button type="button" id="mobile-filter-toggle" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Refine Filters</span>
+        {% if selected_role or selected_location or selected_experience or selected_work_mode or selected_emp_type or selected_min_salary or selected_max_salary %}
+        <span class="w-5 h-5 rounded-full bg-white text-indigo-700 text-[10px] font-black flex items-center justify-center">
+          !
+        </span>
+        {% endif %}
+      </button>
+
+      {% if selected_q or selected_role or selected_location or selected_experience or selected_work_mode or selected_emp_type or selected_min_salary or selected_max_salary %}
+      <a href="{% url 'jobs:job_list' %}" class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-rose-400 border border-rose-500/20 transition-colors" title="Clear all filters">
+        <i class="fa-solid fa-xmark"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Active Filter Pills (Dismissible Chips) -->
+  {% if selected_q or selected_role or selected_location or selected_experience or selected_work_mode or selected_emp_type or selected_min_salary or selected_max_salary %}
+  <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center gap-2 text-xs">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1.5">
+      <i class="fa-solid fa-filter text-indigo-400"></i> Active:
+    </span>
+
+    {% if selected_q %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-950/80 text-indigo-200 border border-indigo-500/30 text-xs">
+      <span>Keyword: <strong>{{ selected_q }}</strong></span>
+      <a href="?{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-indigo-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    {% if selected_role and selected_role != 'All' %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-950/80 text-indigo-200 border border-indigo-500/30 text-xs">
+      <span>Role: <strong>{{ selected_role }}</strong></span>
+      <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-indigo-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    {% if selected_location and selected_location != 'All' %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/80 text-cyan-200 border border-cyan-500/30 text-xs">
+      <span>Loc: <strong>{{ selected_location }}</strong></span>
+      <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-cyan-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    {% if selected_experience and selected_experience != 'All' %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/80 text-purple-200 border border-purple-500/30 text-xs">
+      <span>Exp: <strong>{{ selected_experience }}</strong></span>
+      <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-purple-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    {% if selected_work_mode and selected_work_mode != 'All' %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 text-emerald-200 border border-emerald-500/30 text-xs">
+      <span>Mode: <strong>{{ selected_work_mode }}</strong></span>
+      <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-emerald-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    {% if selected_min_salary or selected_max_salary %}
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/80 text-amber-200 border border-amber-500/30 text-xs">
+      <span>Salary: <strong>₹{{ selected_min_salary|default:"0" }}L - ₹{{ selected_max_salary|default:"∞" }}L</strong></span>
+      <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}{% endif %}" class="text-amber-400 hover:text-rose-400 text-xs">&times;</a>
+    </span>
+    {% endif %}
+
+    <a href="{% url 'jobs:job_list' %}" class="ml-auto text-[11px] font-bold text-rose-400 hover:text-rose-300 hover:underline">
+      Clear All Filters
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Search & Filter Main Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Responsive Filter Sidebar (Collapsible on Mobile/Tablet, Sticky on Desktop) -->
+    <aside class="lg:col-span-4">
+      <div id="filter-sidebar-wrapper" class="hidden lg:block">
+        <form action="{% url 'jobs:job_list' %}" method="GET" class="glass-panel p-5 sm:p-6 rounded-3xl border border-slate-800 space-y-5 sticky top-24 shadow-xl">
+          
+          <!-- Filter Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-filter"></i>
+              </div>
+              <span class="font-heading font-bold text-sm text-white">Refine Search</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-slate-400 font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800">{{ total_count }} Jobs</span>
+              <button type="button" id="mobile-filter-close" class="lg:hidden text-slate-400 hover:text-white p-1 text-base">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Responsive Filter Fields Container (1 col on desktop, 2 col on tablet) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+
+            <!-- Search Keyword -->
+            <div class="sm:col-span-2 lg:col-span-1">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Keywords / Titles</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                <input type="text" name="q" value="{{ selected_q }}" placeholder="Search title, skills, company..." class="w-full pl-9 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+              </div>
+            </div>
+
+            <!-- Role Category -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Job Role</label>
+              <select name="role" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="All">All Roles</option>
+                {% for r in all_roles %}
+                <option value="{{ r }}" {% if selected_role == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Location / City</label>
+              <select name="location" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="All">All Locations</option>
+                {% for loc in all_locations %}
+                <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Experience Level -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Experience Level</label>
+              <select name="experience" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="All">All Experience Levels</option>
+                {% for exp in all_experiences %}
+                <option value="{{ exp }}" {% if selected_experience == exp %}selected{% endif %}>{{ exp }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Work Mode -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Work Mode</label>
+              <select name="work_mode" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="All">All Work Modes</option>
+                {% for wm in all_work_modes %}
+                <option value="{{ wm }}" {% if selected_work_mode == wm %}selected{% endif %}>{{ wm }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Employment Type -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Employment Type</label>
+              <select name="employment_type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="All">All Types</option>
+                {% for et in all_emp_types %}
+                <option value="{{ et }}" {% if selected_emp_type == et %}selected{% endif %}>{{ et }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Salary Range Filter -->
+            <div class="sm:col-span-2 lg:col-span-1">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Salary Range (LPA)</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">₹</span>
+                  <input type="number" step="0.5" name="min_salary" value="{{ selected_min_salary }}" placeholder="Min" class="w-full pl-7 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">₹</span>
+                  <input type="number" step="0.5" name="max_salary" value="{{ selected_max_salary }}" placeholder="Max" class="w-full pl-7 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-2 pt-2 border-t border-slate-800">
+            <button type="submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-check"></i> Apply Filters
+            </button>
+
+            {% if selected_q or selected_role or selected_location or selected_experience or selected_work_mode or selected_emp_type or selected_min_salary or selected_max_salary %}
+            <a href="{% url 'jobs:job_list' %}" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold text-center block transition-colors border border-slate-800">
+              Reset Filters
+            </a>
+            {% endif %}
+          </div>
+
+        </form>
+      </div>
+    </aside>
+
+    <!-- Right Job Cards List (8 cols) -->
+    <section class="lg:col-span-8 space-y-4">
+      
+      <!-- Top Sort & Results Summary Bar -->
+      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <span class="text-slate-400 font-medium">
+          Showing <span class="text-white font-bold">{{ jobs.start_index }} - {{ jobs.end_index }}</span> of {{ total_count }} postings
+        </span>
+
+        <!-- Sorting Options -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Sort by:</span>
+          <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}sort=recent" class="px-3 py-1.5 rounded-xl transition-colors {% if selected_sort == 'recent' %}bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30{% else %}text-slate-400 hover:text-white bg-slate-900 border border-slate-800{% endif %}">
+            Recent
+          </a>
+          <a href="?{% if selected_q %}q={{ selected_q }}&{% endif %}{% if selected_role %}role={{ selected_role }}&{% endif %}{% if selected_location %}location={{ selected_location }}&{% endif %}{% if selected_experience %}experience={{ selected_experience }}&{% endif %}{% if selected_work_mode %}work_mode={{ selected_work_mode }}&{% endif %}sort=salary_high" class="px-3 py-1.5 rounded-xl transition-colors {% if selected_sort == 'salary_high' %}bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30{% else %}text-slate-400 hover:text-white bg-slate-900 border border-slate-800{% endif %}">
+            Highest Pay
+          </a>
+        </div>
+      </div>
+
+      <!-- Job Cards Grid/Stack -->
+      <div class="space-y-4">
+        {% for job in jobs %}
+        <div class="glass-panel p-5 sm:p-6 rounded-2xl border border-slate-800/80 card-hover space-y-4">
+          
+          <!-- Card Top: Title, Company, Salary -->
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div class="space-y-1">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ job.role_category }}</span>
+              <h2 class="font-heading text-lg font-bold text-white hover:text-indigo-400 transition-colors">
+                <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
+              </h2>
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                <span class="font-semibold text-slate-200">{{ job.company.name }}</span>
+                <span>&middot;</span>
+                <span class="text-slate-400"><i class="fa-solid fa-location-dot text-slate-500 mr-1"></i> {{ job.location }}</span>
+              </div>
+            </div>
+
+            <!-- Salary Badge -->
+            <div class="text-left sm:text-right shrink-0">
+              <span class="inline-block text-xs font-extrabold px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                ₹{{ job.salary_min|floatformat:1 }} &ndash; ₹{{ job.salary_max|floatformat:1 }} LPA
+              </span>
+              <p class="text-[10px] text-slate-500 mt-1">₹{{ job.salary_avg|floatformat:1 }}L Average</p>
+            </div>
+          </div>
+
+          <!-- Metadata Tags -->
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-300">
+              <i class="fa-solid fa-briefcase text-slate-500 mr-1"></i> {{ job.employment_type }}
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-300">
+              <i class="fa-solid fa-laptop text-slate-500 mr-1"></i> {{ job.work_mode }}
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-300">
+              <i class="fa-solid fa-user-clock text-slate-500 mr-1"></i> {{ job.experience_level }} ({{ job.experience_min }}-{{ job.experience_max }} yrs)
+            </span>
+            <span class="text-[11px] text-slate-500 sm:ml-auto font-mono">
+              Posted {{ job.posted_date|timesince }} ago
+            </span>
+          </div>
+
+          <!-- Skills Badges -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-1">
+            {% for skill in job.skills.all %}
+            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-950/40 text-indigo-200 border border-indigo-500/20 font-medium">
+              {{ skill.name }}
+            </span>
+            {% endfor %}
+          </div>
+
+          <!-- Actions Footer -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-800/80">
+            <a href="{% url 'jobs:job_detail' job.id %}" class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300">
+              View Complete Details <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </a>
+
+            <div class="flex items-center gap-2">
+              <a href="{% url 'recommendations:skill_gap' %}?target_role={{ job.role_category }}" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-semibold text-slate-300 border border-slate-700 transition-colors" title="Check your skill gap for this position">
+                <i class="fa-solid fa-bullseye text-cyan-400 mr-1"></i> Check Fit
+              </a>
+              
+              <button data-job-id="{{ job.id }}" class="save-job-btn p-2 rounded-lg text-xs transition-colors {% if job.id in saved_job_ids %}text-rose-500 bg-rose-500/10{% else %}text-slate-400 hover:text-white hover:bg-slate-800{% endif %}" title="Bookmark Job">
+                <i class="fa-{% if job.id in saved_job_ids %}solid{% else %}regular{% endif %} fa-heart"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+        {% empty %}
+        <div class="glass-panel p-12 rounded-3xl border border-slate-800 text-center space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center text-xl mx-auto">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <h2 class="font-heading text-lg font-bold text-white">No jobs match your filter criteria</h2>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto">
+            Try adjusting your search keywords, clearing location filters, or broadening your salary requirements.
+          </p>
+          <a href="{% url 'jobs:job_list' %}" class="inline-block mt-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold">
+            Reset Filters
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if jobs.has_other_pages %}
+      <div class="flex items-center justify-center gap-2 py-6">
+        {% if jobs.has_previous %}
+        <a href="?page={{ jobs.previous_page_number }}{% if selected_q %}&q={{ selected_q }}{% endif %}{% if selected_role %}&role={{ selected_role }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}{% if selected_work_mode %}&work_mode={{ selected_work_mode }}{% endif %}" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-800">
+          &laquo; Prev
+        </a>
+        {% endif %}
+
+        <span class="px-4 py-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-xs font-bold text-indigo-300">
+          Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}
+        </span>
+
+        {% if jobs.has_next %}
+        <a href="?page={{ jobs.next_page_number }}{% if selected_q %}&q={{ selected_q }}{% endif %}{% if selected_role %}&role={{ selected_role }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_experience %}&experience={{ selected_experience }}{% endif %}{% if selected_work_mode %}&work_mode={{ selected_work_mode }}{% endif %}" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-800">
+          Next &raquo;
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </section>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterToggleBtn = document.getElementById('mobile-filter-toggle');
+    const filterSidebarWrapper = document.getElementById('filter-sidebar-wrapper');
+    const filterCloseBtn = document.getElementById('mobile-filter-close');
+
+    if (filterToggleBtn && filterSidebarWrapper) {
+      filterToggleBtn.addEventListener('click', () => {
+        filterSidebarWrapper.classList.toggle('hidden');
+        if (!filterSidebarWrapper.classList.contains('hidden')) {
+          filterSidebarWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    if (filterCloseBtn && filterSidebarWrapper) {
+      filterCloseBtn.addEventListener('click', () => {
+        filterSidebarWrapper.classList.add('hidden');
+      });
+    }
+  });
+</script>
+{% endblock %}
